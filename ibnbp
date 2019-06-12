@@ -1,0 +1,252 @@
+#! /usr/bin/perl
+use Term::Cap;
+use POSIX;
+
+my %speed;
+$speed{'2.5'}   = 1;
+$speed{'5'}     = 1;
+$speed{'10'}    = 1;
+$speed{'14'}    = 1;
+$speed{'25'}    = 1;
+$speed{'FDR10'} = 1;
+
+my %width;
+$width{'1x'}  = 1;
+$width{'4x'}  = 1;
+$width{'8x'}  = 1;
+$width{'12x'} = 1;
+
+my $lst = '/var/tmp/ibdiagnet2/ibdiagnet2.lst';
+my $mcfdbs = '/var/tmp/ibdiagnet2/ibdiagnet2.mcfdbs';
+my $mcfdbsfix = $mcfdbs;
+my $fdbs = '/var/tmp/ibdiagnet2/ibdiagnet2.fdbs';
+my $output = '/tmp/none_block_peers';
+my $rfile = '/tmp/root_guid.conf';
+my $host_filter;
+my $hop = 0;
+my $pass = 0;
+my $ls = 'FDR10';
+my $lw = '4x';
+
+while (@ARGV){
+    $_           = shift (@ARGV);
+    $rfile       = shift (@ARGV) if $_ eq '-r';
+    $host_filter = shift (@ARGV) if $_ eq '-e';
+    $hop         = shift (@ARGV) if $_ eq '-i';
+    $lst         = shift (@ARGV) if $_ eq '-s';
+    $mcfdbs      = shift (@ARGV) if $_ eq '-m';
+    $fdbs        = shift (@ARGV) if $_ eq '-f';
+    $output      = shift (@ARGV) if $_ eq '-o';
+    $pass        = shift (@ARGV) if $_ eq '-n';
+    $ls          = shift (@ARGV) if $_ eq '-ls';
+    $lw          = shift (@ARGV) if $_ eq '-lw';
+    help() if $_ eq '-h';
+}
+
+$mcfdbsfix =~ s/\w*\.\w*$/empty.mcfdbs/;
+if ($pass > 3){
+	print "Error: Option \"-n\" value must be smaller than 4\n\n";
+	Help();
+}
+unless ($speed{$ls}){
+	print "Error: Option \"-ls\" value is not valid\n\n";
+	Help();
+}
+unless ($width{$lw}){
+	print "Error: Option \"-lw\" value is not valid\n\n";
+	Help();
+}
+unless (-e $lst){
+	print "Error: The file: \"$lst\" not exist \n\n";
+	Help();
+}
+unless (-e $mcfdbs){
+	print "Error: The file: \"$mcfdbs\" not exist \n\n";
+	Help();
+}
+unless (-e $fdbs){
+	print "Error: The file: \"$fdbs\" not exist \n\n";
+	Help();
+}
+unless (-e $rfile){
+	print "Error: The file: \"$rfile\" not exist \n\n";
+	Help();
+}
+
+if ($hop =~ /\D/){
+	print "Error: Option \"-i\" value must be an integer\n\n";
+	Help();
+}
+
+my $flag;
+my %NODE;
+my %PORT;
+
+print "Waiting ...\r";
+
+if( (0 == $pass) || (2 == $pass) ){
+    open (IBDIAGNET, "ibdiagnet -ls $ls -lw $lw -r --skip nodes_info |") or die "failed to execute ibdiagnet\n";
+    while (<IBDIAGNET>){}
+    close(IBDIAGNET);
+}
+
+open (IN,"/var/tmp/ibdiagnet2/ibdiagnet2.db_csv") or die "could not open /var/tmp/ibdiagnet2/ibdiagnet2.db_csv\n";
+while(<IN>){
+        if (/START_NODE/) { $flag = 1; next; }
+        if (/END_/)       {$ flag = 0; }
+        if (/START_PORT/) { $flag = 2; next; }
+        next if $flag == 0;
+        if ($flag == 1){
+            my @part = split (',',$_);
+            if ($part[2] == 1){                     # filter switches
+                next if $part[0] =~ /MF0\;(.*):BX/; # filter BridgeX
+                next if $part[8] == 23141;          # filter 4036E IO
+                $NODE{$part[6]} = $part[0];
+            }
+        }elsif ($flag == 2){
+            my @part = split (',',$_);
+            $PORT{$part[6]} = $part[0];
+        }
+}
+close(IN);
+
+my @empty;
+open (IN, "$mcfdbs");
+while(<IN>){
+    if (/^#/) { push (@empty,$_); }
+    if (/^\n/) { push (@empty,$_); }
+    if (/^Switch/) { push (@empty,$_); }
+    if (/^LID/) { push (@empty,$_); }
+
+}
+close (IN);
+open (OUT, ">$mcfdbsfix");
+foreach (@empty) { print OUT $_; }
+close (OUT);
+
+if( (0 == $pass) || (1 == $pass) ){
+    open (IBDMCHK, "ibdmchk -s $lst -f $fdbs -m $mcfdbs -r $rfile -u > /tmp/ibdmchck.out |") or die "failed to execute ibdamchk\n";
+    while (<IBDMCHK>){}
+    close(IBDMCHK);
+}
+
+unless (-e "/tmp/ibdmchk.non_block_all_links"){ die "could not find \"/tmp/ibdmchk.non_block_all_links\"\n" }
+open (F, "/tmp/ibdmchk.non_block_all_links") or die "failed to open \"/tmp/ibdmchk.non_block_all_links\"\n";
+my @list = <F>;
+close(F);
+
+print "                         \n";
+my %exist;
+open (OUT, ">$output") or die "failed to open $output for writing\n";
+foreach (sort @list){
+        chomp;
+        if (/[0-9]/){
+            s/\s+/ /g;
+            if ($peers{$_} != 1){
+                my @p = split(" ",$_);
+                if ($hop > 0){
+                        next if $hop < $p[0];
+                }
+                if (($NODE{$PORT{$p[1]}}) && ($NODE{$PORT{$p[2]}})){
+                    if ($host_filter){
+                        next unless $NODE{$PORT{$p[1]}} =~ /$host_filter/;
+                        next unless $NODE{$PORT{$p[2]}} =~ /$host_filter/;
+                    }
+		    my $tag1 = $p[1] . "_" . $p[2]; 
+		    my $tag2 = $p[2] . "_" . $p[1]; 
+                    if (($exist{$tag1} == 1) || ($exist{$tag2} == 1)){
+			$exist{$tag1} = 1;
+			$exist{$tag2} = 1;
+                    } else {
+			$exist{$tag1} = 1;
+			$exist{$tag2} = 1;
+                        my ($node1, $p1) = split (" ", $NODE{$PORT{$p[1]}});
+                        my ($node2, $p2) = split (" ", $NODE{$PORT{$p[2]}});
+                        $node1 =~ s/"//g;
+                        $node2 =~ s/"//g;
+                        print $node1 . " " . $node2 . "\n";
+                        print OUT $node1 . " " . $node2 . "\n";
+		    }
+                }
+                $peers{$_} = 1;
+            }
+        }
+}
+close(OUT);
+print "\n-I- You can find this output in: $output\n";
+
+sub help {
+    my $termios = new POSIX::Termios; $termios->getattr;
+    my $ospeed = $termios->getospeed;
+    my $t = Tgetent Term::Cap { TERM => undef, OSPEED => $ospeed };
+    ($norm, $bold, $under) = map { $t->Tputs($_,1) } qw/me md us/;
+    print "\n";
+    print "${bold}NAME$norm\n";
+    print "\t${bold}${under}Network None Blocking Peers Checker$norm\n";
+    print "\n";
+
+    print "${bold}SYNOPSYS$norm\n";
+    print "\t${bold}ibnbp$norm [-h] [-r <roots file>] [-e <expression>] [-i <rank>]\n";
+    print "\t [-s <subnet file>] [-f <fdb file>] [-m <mcfdbs file>] [-n <0|1|2|3up>]\n";
+    print "\t [-ls <2.5|5|10|14|25|FDR10>] [-lw <1x|4x|8x|12x>]\n";
+    print "\n";
+
+    print "${bold}DESCRIPTION$norm\n";
+    print "\tCalculate and print all none block peers according to the (H)CA to (H)CA paths depth.\n";
+    print "\n";
+
+    print "${bold}OPTIONS:$norm\n";
+    print "\t${bold}-h$norm\n";
+    print "\tProvides this help message\n";
+    print "\n";
+    print "\t${bold}-r <roots file>$norm\n";
+    print "\tA file with all the roots node names - one on each line (default is $rfile.)\n";
+    print "\n";
+    print "\t${bold}-s <subnet lst file>$norm\n";
+    print "\tOpenSM subnet.lst file (default is $lst)\n";
+    print "\n";
+    print "\t${bold}-f <fdb file>$norm\n";
+    print "\tOpenSM dump of Ucast LFDB (default is $fdbs).\n";
+    print "\n";
+    print "\t${bold}-m <mcfdb file>$norm\n";
+    print "\tOpenSM dump of Multicast LFDB (default is $mcfdbs).\n";
+    print "\n";
+    print "\t${bold}-e <expression>$norm\n";
+    print "\tA sub-string (filter) to match on each peer (default is no filter).\n";
+    print "\n";
+    print "\t${bold}-i <rank>$norm\n";
+    print "\tReports of the (H)CA to (H)CA paths depth which is below the specified rank parameter \n";
+    print "\t(default is 0, no limits).\n";
+    print "\n";
+    print "\t${bold}-ls <2.5|5|10|14|25|FDR10>$norm\n";
+    print "\tSpecifies the expected link speed (default is $ls).\n";
+    print "\n";
+    print "\t${bold}-lw <1x|4x|8x|12x>$norm\n";
+    print "\tSpecifies the expected link width (default is $lw).\n";
+    print "\n";
+    print "\t${bold}-o <output file>$norm\n";
+    print "\tWrite the peers to a file location specified by this parameter (default is $output).\n";
+    print "\n";
+    print "\t${bold}-n <0|1|2|3>$norm\n";
+    print "\tExecute \"ibdiagnet\", \"ibdmchk\", both or none.\n";
+    print "\t${bold}0$norm - \tExecute both applications (The default, may take a long time)\n";
+    print "\t${bold}1$norm - \tDo not execute \"ibdiagnet\"\n";
+    print "\t${bold}2$norm - \tDo not execute \"ibdmchk\"\n";
+    print "\t${bold}3$norm - \tDo not execute any application\n";
+    print "\tNote: you must run both on first time execution (default).\n";
+    print "\n";
+
+    print "\n${bold}Dependencies$norm\n";
+    print "\t- ibdiagnet version 2\n";
+    print "\t- ibdmchk\n";
+    print "\n";
+
+    print "${bold}VERSION$norm\n";
+    print "\tIBNBP 0.1\n";
+    print "\n";
+    exit 0;
+}
+  
+
+
+ 

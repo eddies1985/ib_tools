@@ -1,0 +1,123 @@
+ID,Event Name,GUI,ALARM,LOG,SCRIPT,SNMP,THRESHOLD,TTL(Sec),SEVERITY
+510,SM UP,True,False,False,False,False,12,312,Warning
+133,Port Normalized Transmit Wait,True,False,False,False,False,12,312,Warning
+120,Excessive Buffer Overrun Errors,True,False,False,False,False,12,312,Warning
+121,VL15 Dropped,True,False,False,False,False,12,312,Warning
+117,Port Xmit Constraint Errors,True,False,False,False,False,12,312,Warning
+118,Port Receive Constraint Errors,True,False,False,False,False,12,312,Warning
+116,Port Xmit Discards,True,False,False,False,False,12,312,Warning
+145,System Image GUID changed,True,False,True,True,False,12,312,Warning
+115,Port Receive Switch Relay Errors,True,False,False,False,False,12,312,Warning
+258,Bad Q_Key,True,False,False,False,False,12,312,Warning
+259,Bad P_Key Switch External Port,True,False,False,False,False,12,312,Warning
+256,Bad M_Key,True,False,False,False,False,12,312,Warning
+257,Bad P_Key,True,False,False,False,False,12,312,Warning
+128,Link State Changed,False,False,False,False,False,12,312,Warning
+399,Switch Chip Removed,False,False,False,False,False,12,312,Warning
+398,Switch Chip Added,True,False,False,False,True,12,312,Warning
+902,Fabric Configuration Completed,True,False,False,False,True,12,312,Warning
+903,Fabric Configuration Failed,True,False,False,False,False,12,312,Warning
+901,Fabric Configuration Started,False,False,False,False,False,12,312,Warning
+906,Provisioning Validation Failure,True,False,False,False,False,12,312,Warning
+904,Device Configuration Failure,True,False,False,False,False,12,312,Warning
+905,Device Configuration Timeout,True,True,True,True,True,45,333,Warning
+511,SM Down,True,True,False,False,True,12,312,Warning
+510,SM UP,True,False,False,False,False,12,312,Warning
+513,SM System Log Message,True,False,False,False,False,12,312,Warning
+512,SM Failover,True,False,False,False,False,12,312,Info
+517,Fabric Health Report Error,True,False,False,False,True,13,317,Info
+516,Fabric Health Report Warning,True,True,False,False,False,12,312,Warning
+64,GID Address In Service,True,False,False,True,False,12,312,Info
+65,GID Address Out of Service,True,False,True,False,False,12,312,Warning
+66,New MCast Group Created,True,False,False,True,False,12,312,Warning
+67,MCast Group Deleted,True,True,False,True,False,12,312,Warning
+602,UFM Server Failover,True,False,False,False,True,15,314,Warning
+391,Switch Module Removed,True,False,False,False,False,12,312,Warning
+393,Switch Module Added,True,True,True,True,False,12,312,Warning
+156,Link Speed Enforcement Disabled,True,False,False,False,False,12,312,Warning
+144,Capability Mask Modified,True,False,False,False,False,12,312,Warning
+331,Node is Down,True,False,False,False,False,12,312,Warning
+332,Node is Up,True,False,False,False,False,12,312,Warning
+328,Link is Up,True,False,False,False,False,12,312,Warning
+329,Link is Down,True,False,False,False,False,12,312,Warning
+371,Gateway Re-register Event Received,True,False,False,False,False,12,312,Warning
+370,Gateway Ethernet Link State Changed,True,False,False,False,False,12,312,Warning
+373,Gateway will be Rebooted,True,False,False,False,False,12,312,Warning
+372,Number of Gateways is Changed,True,False,False,False,False,12,312,Warning
+374,Gateway Reloading Finished,True,False,False,False,False,12,312,Warning
+701,Non-optimal Link Speed,True,False,False,False,False,12,312,Warning
+122,Congested Bandwidth (%) Threshold Reached,True,False,False,False,False,12,312,Warning
+123,Port Bandwidth (%) Threshold Reached,True,False,False,False,False,12,312,Warning
+114,Port Receive Remote Physical Errors,True,False,False,False,False,12,312,Warning
+111,Link Error Recovery,True,False,False,False,False,12,312,Warning
+112,Link Downed,True,False,False,False,False,12,312,Warning
+119,Local Link Integrity Errors,True,False,False,False,False,12,312,Warning
+701,Non-optimal Link Speed,True,False,False,False,False,12,312,Warning
+820,Symbol Errors,True,False,False,False,False,12,312,Warning
+113,Port Receive Errors,True,False,False,False,False,12,312,Warning
+141,Flow Control Update Watchdog Timer Expired,True,False,False,False,False,12,312,Warning
+392,Module Temperature Threshold Reached,True,False,False,False,False,12,312,Warning
+340,Network Interface Added,True,False,False,False,False,12,312,Warning
+341,Network Interface Removed,True,False,False,False,False,12,312,Warning
+313,Compute Resource Allocated,True,False,False,False,False,12,312,Warning
+312,Compute Resource Released,True,False,False,False,False,12,312,Warning
+317,Logical Server Compute Resource is Up,True,False,False,False,False,12,312,Warning
+316,Logical Server Compute Resource is Down,True,False,False,False,False,12,312,Warning
+315,Logical Server Resources Released,True,False,False,False,False,12,312,Warning
+314,Logical Server Additional Resources Allocated,True,False,False,False,False,12,312,Warning
+308,Logical Server Resources Allocated,True,False,False,False,False,12,312,Warning
+301,Logical Server State Changed,True,False,False,False,False,12,312,Warning
+302,Logical Server State Change Failed,True,False,False,False,False,12,312,Warning
+306,Logical Server Added,True,False,False,False,False,12,312,Warning
+307,Logical Server Removed,True,False,False,False,False,12,312,Warning
+353,Network Removed,True,False,False,False,False,12,312,Warning
+352,Network Added,True,False,False,False,False,12,312,Warning
+351,Environment Removed,True,False,False,False,False,12,312,Warning
+350,Environment Added,True,False,False,False,False,12,312,Warning
+522,UFM is being restarted,True,False,False,False,False,12,312,Warning
+523,UFM failover is being attempted,True,False,False,False,False,12,312,Warning
+528,Fabric interface is down,True,False,False,False,False,12,312,Warning
+533,Remote UFM-SM problem,True,False,False,False,False,12,312,Warning
+532,Remote UFM-SM Sync,True,False,False,False,False,12,312,Warning
+531,DRBD Bad Condition,True,False,False,False,False,12,312,Warning
+530,SM is down,True,False,False,False,False,12,312,Warning
+524,UFM cannot connect to DB,True,False,False,False,False,12,312,Warning
+525,Disk utilization threshold reached,True,False,False,False,False,12,312,Warning
+526,Memory utilization threshold reached,True,False,False,False,False,12,312,Warning
+527,CPU utilization threshold reached,True,False,False,False,False,12,312,Warning
+520,Restart of UFM-related process succeeded,True,False,False,False,False,12,312,Warning
+521,UFM is being stopped,True,False,False,False,False,12,312,Warning
+529,UFM standby server problem,True,False,False,False,False,12,312,Warning
+381,Switch Upgrade Failed,True,False,False,False,False,12,312,Warning
+383,Host Upgrade Failed,True,False,False,False,False,12,312,Warning
+385,Switch FW Upgrade Started,True,False,False,False,False,12,312,Warning
+386,Switch SW Upgrade Started,True,False,False,False,False,12,312,Warning
+387,Switch Upgrade Finished,True,False,False,False,False,12,312,Warning
+388,Host FW Upgrade Started,True,False,False,False,False,12,312,Warning
+389,Host SW Upgrade Started,True,False,False,False,False,12,312,Warning
+519,Logs purge failure,True,False,False,False,False,12,312,Warning
+518,UFM-related process is down,True,False,False,False,False,12,312,Warning
+339,Device Action Failed,True,False,False,False,False,12,312,Warning
+338,Device Action Succeeded,True,False,False,False,False,12,312,Warning
+337,Port Action Failed,True,False,False,False,False,12,312,Warning
+336,Port Action Succeeded,True,False,False,False,False,12,312,Warning
+252,License expired,True,False,False,False,False,12,312,Warning
+253,Duplicated licenses,True,False,False,False,False,12,312,Warning
+254,License Limit Exceeded,True,False,False,False,False,12,312,Warning
+255,License Expiration Date,True,False,False,False,False,12,312,Warning
+403,Device Pending Reboot,True,False,False,False,False,12,312,Warning
+504,UFM BackUp Finished,True,False,False,False,False,12,312,Warning
+505,UFM BackUp Finished With Error,True,False,False,False,False,12,312,Warning
+502,Device Upgrade Finished,True,False,False,False,False,12,312,Warning
+503,UFM BackUp Started,True,False,False,False,False,12,312,Warning
+397,Site Action Failed,True,False,False,False,False,12,312,Warning
+604,Health Report,True,False,False,False,False,12,312,Warning
+605,Health Report,True,False,False,False,False,12,312,Warning
+603,Events Suppression,True,False,False,False,False,12,312,Warning
+396,Site Action Started,True,False,False,False,False,12,312,Warning
+395,Device Action Started,True,False,False,False,False,12,312,Warning
+394,Module status FAULT,True,False,False,False,False,12,312,Warning
+515,Fabric Health Report Info,True,False,False,False,False,12,312,Warning
+514,SM LID Change,True,False,False,False,False,12,312,Warning
+130,Non-optimal link width,True,False,False,False,False,12,312,Warning
+110,Symbol Error,True,False,False,False,False,12,312,Warning
