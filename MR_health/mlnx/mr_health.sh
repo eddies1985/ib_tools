@@ -41,7 +41,8 @@ function sysdump {
 
 echo -e "\nGenearing Sysdump"
 #ssh -o "StrictHostKeyChecking=no" admin@127.0.0.1 cli \"enable\" \"debug generate dump\" \"show files debug-dump\" > /tmp/sysdump_name.txt
-sysdump_name=` echo ${sysdump_command} | bash | grep "Generated dump sysdump" | awk '{print $3}'`
+sysdump_name=`echo ${sysdump_command} | bash | grep "Generated dump sysdump" | awk '{print $3}'`
+echo $sysdump_name
 #sysdump_name=`grep "Generated dump sysdump" /tmp/sysdump_name | awk '{print $3}'`
 if [[ $sysdump_name =~ "sysdump-" ]]; then
  echo -e "Detected sysdump $sysdump_name"
@@ -49,7 +50,7 @@ if [[ $sysdump_name =~ "sysdump-" ]]; then
  cp /var/opt/tms/sysdumps/${sysdump_name} ${log_dir}/
  rm -f /var/opt/tms/sysdumps/${sysdump_name}
 else
-  echo -e "\nCouldn't determine generated Sysdump name"
+  echo -e "\nCouldn't determine generated Sysdump name, sysdump won't be collected"
 fi
 }
 
@@ -67,11 +68,12 @@ function cli_commands {
 function ib_commands {
 
   # iblinkinfo
-  iblinkinfo > ${log_dir}/iblinkinfo.txt
+  iblinkinfo &> ${log_dir}/iblinkinfo.txt
   # ibnetdiscover
-  ibnetdiscover > ${log_dir}/ibnetdiscover.txt
+  ibnetdiscover &> ${log_dir}/ibnetdiscover.txt
   # ibdiagnet
-  $ibdiagnet_path ${ibdiagnet_flags} -o ${log_dir}/ibdiagnet
+  mkdir $log_dir/ibdiagnet/
+  $ibdiagnet_path ${ibdiagnet_flags} -o ${log_dir}/ibdiagnet &> $log_dir/ibdiagnet/ibdiagnet_run.log
 }
 
 #####################################################################
@@ -132,6 +134,7 @@ function mlxdump_lid {
 
 function mlxdump_all {
 # instance number
+ touch ${log_dir}/mlxdump_run.log
  for lid in `echo "$all_lids" `
  do
   #echo "instance # $1"
@@ -141,7 +144,7 @@ function mlxdump_all {
   if [[ ! -d ${log_dir}/$switch_name/mlxdump_log.log ]] ; then
         touch ${log_dir}/$switch_name/mlxdump_log.log
   fi
-  echo -e "\nGetting mlxdump $1 from $switch_name lid: $lid"
+  echo -e "Getting mlxdump $1 from lid: $lid  $switch_name " &> ${log_dir}/mlxdump_run.log
   mlxdump_lid $instance "$lid" "$switch_name"
 done
 
@@ -153,6 +156,7 @@ done
 # Get all switch lids
 
 all_lids=`ibnetdiscover -p | egrep '^SW' | awk '{print $2}' | sort | uniq  `
+echo -e "\nFound `echo "$all_lids"| wc -l` ASICS"
 
 now=`date +%d_%m_%Y_%H_%M`
 log_dir="/var/log/mr_health_logs_${now}"
@@ -200,16 +204,14 @@ else
   sleep 10
 fi
 
-tar czf /tmp/mr_health_log_${now}.tgz ${log_dir}/
+tar czf /tmp/mr_health_log_${now}.tgz ${log_dir}/ &>/dev/null
 
 if [[ ! -f /tmp/mr_health_log_${now}.tgz ]] ; then
    echo -e "\nERR: Couldn't create the file  /tmp/mr_health_log_${now}.tgz"
    echo -e "Try creating it on your own with:"
    echo -e "\n tar czf /tmp/mr_health_log_${now}.tgz ${log_dir}/"
 else
- echo ""
- echo "Created log file /tmp/mr_health_log_${now}.tgz - COPY it to an external device"
- echo ""
+ echo -e "\n\e[32mCreated log file /tmp/mr_health_log_${now}.tgz - COPY it to an external device \e[39m"
 
  echo "Deleting log $log_dir folder to save space"
 if [[ -d  $log_dir ]]; then
