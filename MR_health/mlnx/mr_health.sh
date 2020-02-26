@@ -14,7 +14,7 @@ ibdiagnet_flags="-pc --get_phy_info --extended_speeds all"
 ibdiagnet_monitor_path="/tmp/mlnx/usr/ibdiagnet_path"
 ibdiagnet_monitor_flags=" "
 sysdump_command="/opt/tms/bin/cli -t enable 'debug generate dump'"
-what_to_tet="nothing"
+what_to_test="nothing"
 
 # parse command line arguments
 for arg in "$@"
@@ -174,7 +174,7 @@ do
   fi
 done
 
-if [[ ! what_to_test == "nothing" ]]; then
+if [[ ! $what_to_test == "nothing" ]]; then
   echo -e "\n ##### Testing function $what_to_test ######"
   $what_to_test
 else
