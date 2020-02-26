@@ -7,7 +7,7 @@ sminfo
 with_cables="no"
 mlxlink_flags="-ec"
 skip_mlxlink="no"
-mlxdump_sleep=60
+mlxdump_sleep=200
 mlxdump_flags="snapshot -m full"
 ibdiagnet_path="/usr/bin/ibdiagnet"
 ibdiagnet_flags="-pc --get_phy_info --extended_speeds all"
@@ -128,6 +128,7 @@ function mlxdump_lid {
   #echo "Switch Name: $3"
 
  #mlxdump -d lid-$2 snapshot -m full -o ${log_dir}/${3}/${3}_mlxdump_snapshot_${1}.udmp >> ${log_dir}/${3}/mlxdump_log_$1.log
+
   echo "Instance: $1" >> ${log_dir}/${3}/mlxdump_log.log
   mlxdump -d lid-$2 ${mlxdump_flags} -o ${log_dir}/${3}/${3}_mlxdump_snapshot_${1}.udmp &>> ${log_dir}/${3}/mlxdump_log.log
 }
@@ -141,10 +142,10 @@ function mlxdump_all {
   instance=$1
   switch_name=`smpquery nd $lid | cut -d ";" -f 2 | sed 's/\//_/g' | sed 's/\:/-/'`
   #echo "main function: switch name $switch_name"
-  if [[ ! -d ${log_dir}/$switch_name/mlxdump_log.log ]] ; then
-        touch ${log_dir}/$switch_name/mlxdump_log.log
+  if [[ ! -f ${log_dir}/$switch_name/mlxdump_log.log ]] ; then
+        touch ${log_dir}/${switch_name}/mlxdump_log.log
   fi
-  echo -e "Getting mlxdump $1 from lid: $lid  $switch_name " &> ${log_dir}/mlxdump_run.log
+  echo -e "Getting mlxdump $1 from lid: $lid  $switch_name " &>> ${log_dir}/mlxdump_run.log
   mlxdump_lid $instance "$lid" "$switch_name"
 done
 
