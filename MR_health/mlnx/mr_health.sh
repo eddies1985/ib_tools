@@ -7,7 +7,7 @@ sminfo
 with_cables="no"
 mlxlink_flags="-ec"
 skip_mlxlink="no"
-mlxdump_sleep=200
+mlxdump_sleep=10
 mlxdump_flags="snapshot -m full"
 ibdiagnet_path="/usr/bin/ibdiagnet"
 ibdiagnet_flags="-pc --get_phy_info --extended_speeds all"
@@ -91,7 +91,7 @@ for port in {1..40}
 do
   touch $log_dir/${2}/${2}_port_${port}.log
   echo "Switch $2 Port $port" >> $log_dir/${2}/${2}_port_${port}.log
-  mlxlink_output=`mlxlink -d lid-$1 -p $port/2 $mlxlink_flags 2>>$log_dir/${2}/${2}_port_${port}.log & `
+  mlxlink_output=`mlxlink -d lid-$1 -p $port $mlxlink_flags 2>>$log_dir/${2}/${2}_port_${port}.log & `
   echo "$mlxlink_output" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" >> $log_dir/${2}/${2}_port_${port}.log
 
 # In case we have split on external ports - check if switch num ports = 81 A.K.A split_mode=1
