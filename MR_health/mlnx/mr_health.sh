@@ -115,15 +115,20 @@ function mlxlink_all {
   do
     mlxlink_switch_name=`smpquery nd $lid | cut -d ";" -f 2 | sed 's/\//_/g' | sed 's/\:/-/'`
     mlxlink_num_ports=`smpquery ni $lid | grep NumPorts | tr -d '.' | cut -d ":" -f 2`
-    echo -en "Getting mlxlink data from ${mlxlink_switch_name}\r"
+    echo -en "Getting mlxlink data from ${mlxlink_switch_name} lid:${lid}\r"
     mlxlink_lid $lid $mlxlink_switch_name $mlxlink_num_ports
  done
 }
 
 function mlxdump_lid {
-# instance number , lid , switch name
-  echo "Instance: $1" >> ${log_dir}/${3}/mlxdump_log.log
-  mlxdump -d lid-$2 ${mlxdump_flags} -o ${log_dir}/${3}/${3}_mlxdump_snapshot_${1}.udmp &>> ${log_dir}/${3}/mlxdump_log.log
+# lid , switch name
+# mlxdumps
+  for i in {1..3}
+  do
+    echo -en "$2 - mlxdump Instance: $i\r"
+    echo "$2 - Instance: $i" >> ${log_dir}/${2}/mlxdump_log.log
+    mlxdump -d lid-$1 ${mlxdump_flags} -o ${log_dir}/${2}/${2}_mlxdump_snapshot_${i}.udmp &>> ${log_dir}/${2}/mlxdump_log.log
+  done
 }
 
 function mlxdump_all {
@@ -140,7 +145,7 @@ function mlxdump_all {
   fi
   echo -e "Getting mlxdump $1 from lid: $lid  $switch_name " &>> ${log_dir}/mlxdump_run.log
   echo -ne "Getting mlxdump $1 from lid: $lid  $switch_name \r"
-  mlxdump_lid $instance "$lid" "$switch_name"
+  mlxdump_lid "$lid" "$switch_name"
 done
 
 }
@@ -188,12 +193,7 @@ else
   # mlxdumps
 echo -e "\033[2K"
 echo -e "Starting mlxdump phase"
-  mlxdump_all 1 &
-  sleep $mlxdump_sleep
-  mlxdump_all 2 &
-  sleep $mlxdump_sleep
-  mlxdump_all 3 &
-  sleep $mlxdump_sleep
+  mlxdump_all
 echo -e "\033[2K"
 echo -e "Ending mlxdump phase"
   ib_commands
