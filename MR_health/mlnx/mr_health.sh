@@ -144,7 +144,7 @@ function mlxdump_all {
         touch ${log_dir}/${switch_name}/mlxdump_log.log
   fi
   echo -e "Getting mlxdump $1 from lid: $lid  $switch_name " &>> ${log_dir}/mlxdump_run.log
-  echo -ne "Getting mlxdump $1 from lid: $lid  $switch_name \r"
+  #echo -ne "Getting mlxdump $1 from lid: $lid  $switch_name \r"
   mlxdump_lid "$lid" "$switch_name"
 done
 
