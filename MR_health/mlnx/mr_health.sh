@@ -11,7 +11,7 @@ mlxdump_sleep=200
 mlxdump_flags="snapshot -m full"
 ibdiagnet_path="/usr/bin/ibdiagnet"
 ibdiagnet_flags="-pc --get_phy_info --extended_speeds all"
-ibdiagnet_monitor_path="/tmp/mlnx/usr/ibdiagnet_path"
+ibdiagnet_monitor_path="/tmp/mlnx/usr/ibdiagnet_monitor.py"
 ibdiagnet_monitor_flags=" "
 sysdump_command="/opt/tms/bin/cli -t enable 'debug generate dump'"
 what_to_test="nothing"
@@ -77,9 +77,10 @@ function ib_commands {
 }
 
 #####################################################################
-function ibdiagnet_monitor {
- echo -e "\nRunning: $ibdiagnet  $ibdiagnet_flags "
- $ibdiagnet_monitor $ibdiagnet_flags
+function ibdiagnet_monitor_run {
+ echo -e "\nRunning: $ibdiagnet_monitor_path  $ibdiagnet_monitor_flags "
+ now_ibm=`date +%d-%M-%Y_%H-%M-%S`
+ $ibdiagnet_monitor_path --out_csv=${log_dir}/ibdiagnet_monitor_out_${now_ibm}.csv ${ibdiagnet_monitor_flags} &> $log_dir/ibdiagnet_monitor_run.log
 }
 
 ########################################################################
@@ -200,6 +201,7 @@ else
   ib_commands
   sysdump
   cli_commands
+  ibdiagnet_monitor_run
 
   # bundling all it a tgz file to Copy
   sleep 10
