@@ -39,7 +39,7 @@ done
 
 function sysdump {
 
-echo -e "\nGenearing Sysdump"
+echo -e "\nGenerating Sysdump"
 #ssh -o "StrictHostKeyChecking=no" admin@127.0.0.1 cli \"enable\" \"debug generate dump\" \"show files debug-dump\" > /tmp/sysdump_name.txt
 sysdump_name=`echo ${sysdump_command} | bash | grep "Generated dump sysdump" | awk '{print $3}'`
 echo $sysdump_name
@@ -73,7 +73,7 @@ function ib_commands {
   ibnetdiscover &> ${log_dir}/ibnetdiscover.txt
   # ibdiagnet
   mkdir $log_dir/ibdiagnet/
-  $ibdiagnet_path ${ibdiagnet_flags} -o ${log_dir}/ibdiagnet &> $log_dir/ibdiagnet/ibdiagnet_run.log
+  $ibdiagnet_path ${ibdiagnet_flags} -o ${log_dir}/ibdiagnet &>> $log_dir/ibdiagnet/ibdiagnet_run.log
 }
 
 #####################################################################
@@ -115,21 +115,13 @@ function mlxlink_all {
   do
     mlxlink_switch_name=`smpquery nd $lid | cut -d ";" -f 2 | sed 's/\//_/g' | sed 's/\:/-/'`
     mlxlink_num_ports=`smpquery ni $lid | grep NumPorts | tr -d '.' | cut -d ":" -f 2`
-    echo -e "\nGetting mlxlink data from $mlxlink_switch_name"
+    echo -en "Getting mlxlink data from ${mlxlink_switch_name}\r"
     mlxlink_lid $lid $mlxlink_switch_name $mlxlink_num_ports
  done
 }
 
 function mlxdump_lid {
 # instance number , lid , switch name
-
- #echo "sub function mlxdump -d lid-$2 snapshot -m full -o ${log_dir}/${3}/${3}_mlxdump_snapshot_${1}.udmp "
-  #echo "lid: $2"
-  #echo "instance # $1"
-  #echo "Switch Name: $3"
-
- #mlxdump -d lid-$2 snapshot -m full -o ${log_dir}/${3}/${3}_mlxdump_snapshot_${1}.udmp >> ${log_dir}/${3}/mlxdump_log_$1.log
-
   echo "Instance: $1" >> ${log_dir}/${3}/mlxdump_log.log
   mlxdump -d lid-$2 ${mlxdump_flags} -o ${log_dir}/${3}/${3}_mlxdump_snapshot_${1}.udmp &>> ${log_dir}/${3}/mlxdump_log.log
 }
@@ -147,6 +139,7 @@ function mlxdump_all {
         touch ${log_dir}/${switch_name}/mlxdump_log.log
   fi
   echo -e "Getting mlxdump $1 from lid: $lid  $switch_name " &>> ${log_dir}/mlxdump_run.log
+  echo -ne "Getting mlxdump $1 from lid: $lid  $switch_name \r"
   mlxdump_lid $instance "$lid" "$switch_name"
 done
 
@@ -186,18 +179,23 @@ if [[ ! $what_to_test == "nothing" ]]; then
 else
 
   if [[ $skip_mlxlink == "no" ]]; then
+     echo "Starting mlxlink phase"
      mlxlink_all
+     echo -e "\033[2K"
+     echo "Ending mlxlink phase"
   fi
 
   # mlxdumps
-
+echo -e "\033[2K"
+echo -e "Starting mlxdump phase"
   mlxdump_all 1 &
   sleep $mlxdump_sleep
   mlxdump_all 2 &
   sleep $mlxdump_sleep
   mlxdump_all 3 &
   sleep $mlxdump_sleep
-
+echo -e "\033[2K"
+echo -e "Ending mlxdump phase"
   ib_commands
   sysdump
   cli_commands
